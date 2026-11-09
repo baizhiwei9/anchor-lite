@@ -1,0 +1,18 @@
+{
+  "asof": "2026-11-05",
+  "next_trade_date": "2026-11-06",
+  "band_pct": 3.0,
+  "cost_bps": 5.0,
+  "base_capital": 1000000,
+  "triggered": false,
+  "orders": [],
+  "est_cost": 0.0,
+  "rules": [
+    "每日检查：偏差 > 3pp 才下单（band=3%）",
+    "每周首个交易日为选样日，对目标权重做一次全量对齐",
+    "回撤闸门触发当日只削风险腿，不新开仓",
+    "股票合计上限 30%，纳指单腿上限 15%，原油上限 18%"
+  ],
+  "gap_pct": 0.66,
+  "traded_turnover_pct": 0.0
+}

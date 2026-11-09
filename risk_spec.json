@@ -1,0 +1,50 @@
+{
+  "asof": "2026-11-05",
+  "version": "v1.1-20261109",
+  "params": {
+    "drawdown_gate": {
+      "level1": "回撤 ≤ -1.6% → 风险腿削到 40%",
+      "level2": "回撤 ≤ -2.0% → 风险腿清零"
+    },
+    "breadth_gate": {
+      "rule": "站上 200 日线宽基占比 ≤25% → 股票额度×0.25；≤50% → ×0.55"
+    },
+    "stock_cap": {
+      "base": 0.42,
+      "cap": 0.6,
+      "note": "宽基引擎上限 60%，行业实验版才是 30%"
+    },
+    "single_leg": {
+      "nasdaq": 0.15,
+      "kc50": 0.1,
+      "hs300": 0.15,
+      "oil_base": 0.12,
+      "oil_cap": 0.18,
+      "bond": "残差"
+    },
+    "oil_stop": {
+      "level1": "原油腿自身回撤 ≤ -6% → 40%",
+      "level2": "≤ -10% → 清零"
+    },
+    "reentry": {
+      "mode": "all3",
+      "rule": "期权安全 + 均线安全 + 波动率安全 三者同时为真才复位",
+      "confirm_days": 1
+    },
+    "band": 0.03,
+    "cost_bps": 5
+  },
+  "state": {
+    "current_drawdown": -0.45,
+    "breadth": 0.0,
+    "risk_multiplier": 0.0,
+    "equity_pct": 7.17,
+    "reset_signals": {
+      "opt": true,
+      "ma": false,
+      "vol": false,
+      "all3": false
+    },
+    "gate_status": "A股腿关闭（广度 0%，风险乘数 0）"
+  }
+}

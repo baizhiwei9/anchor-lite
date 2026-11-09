@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>行业强弱打分与 XGBoost 对照</title><style>
+:root{--ink:#12161C;--sub:#5A6472;--line:#E3E7EE;--bg:#F7F8FA;--accent:#1F3A5F}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","PingFang SC",system-ui,sans-serif;font-size:14.5px;line-height:1.72}
+.wrap{max-width:1060px;margin:0 auto;padding:32px 24px 56px}
+header{border-bottom:3px solid var(--accent);padding-bottom:14px;margin-bottom:22px}
+h1.ttl{font-size:23px;margin:0 0 8px} .meta{color:var(--sub);font-size:12.5px}
+h2{font-size:17px;margin:30px 0 10px;padding-left:10px;border-left:4px solid var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;margin:8px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left} th{background:#F2F5F9;font-size:12.5px}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lead{background:#fff;border-left:4px solid var(--accent);padding:13px 17px;margin:14px 0}
+.note{background:#FFFBEB;border:1px solid #FDE68A;padding:11px 14px;font-size:13px;color:#7C4A03;margin:12px 0}
+.warn{background:#FEF2F2;border:1px solid #FECACA;padding:11px 14px;font-size:13px;color:#7F1D1D;margin:12px 0}
+.small{font-size:12.5px;color:var(--sub)} ul,ol{margin:8px 0 8px 20px} li{margin:4px 0}
+footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:var(--sub);font-size:12.5px}
+</style></head><body><div class="wrap">
+<header><h1 class="ttl">行业强弱打分与 XGBoost 对照</h1>
+<div class="meta">2026 单年 · A 股股票总仓位 ≤30% · 单边成本 5bp · 全部因子与训练样本仅用 t-1 及以前信息 · 数据截至 2026-11-06</div></header>
+
+<div class="lead"><b>结论。</b>这条路在 2026 年不成立。行业强弱多因子打分最好的组合是「前 3 名 + 5 日平滑」<b>+0.61%/−8.13%</b>，XGBoost 全部为负（最好 −3.27%/−8.98%），而现版状态机满仓单一风格是 <b>+6.69%/−7.03%</b>。把窗口压到 40 日：多因子小幅改善 1~2pp，XGBoost 反而恶化 6~9pp。<b>失败原因是信号本身，不是窗口长度。</b></div>
+
+<h2>一、对照基线（现版状态机方案）</h2>
+<table><tr><th>方案</th><th>收益</th><th>最大回撤</th><th>夏普</th><th>平均股仓</th><th>调仓次数</th></tr><tr><td>满仓单一风格（状态先验，现版基准）</td><td class='num'>+6.69%</td><td class='num'>-7.03%</td><td class='num'>0.97</td><td class='num'>29.9%</td><td class='num'>41</td></tr><tr><td>概率分摊 5 风格（现版）</td><td class='num'>-0.45%</td><td class='num'>-5.99%</td><td class='num'>-0.08</td><td class='num'>29.7%</td><td class='num'>188</td></tr><tr><td>概率前二 70/30（现版）</td><td class='num'>+4.14%</td><td class='num'>-4.47%</td><td class='num'>0.84</td><td class='num'>29.9%</td><td class='num'>135</td></tr><tr><td>单押红利（对照上限参考）</td><td class='num'>+3.17%</td><td class='num'>-4.48%</td><td class='num'>0.71</td><td class='num'>29.8%</td><td class='num'>8</td></tr></table>
+
+<h2>二、行业相对强弱打分（单因子，40 日窗）</h2>
+<p>最简版：只用一个因子——行业相对沪深300 的 20 日相对强度，每日取最强行业配置 30%。这是“红利在变强就给它加仓、在变弱就减仓”的直接实现。</p>
+<table><tr><th>选样</th><th>收益</th><th>最大回撤</th><th>夏普</th><th>平均股仓</th><th>调仓次数</th></tr>
+<tr><td>前 1 名（平滑1 日）</td><td class='num'>-10.40%</td><td class='num'>-23.80%</td><td class='num'>-0.52</td><td class='num'>29.9%</td><td class='num'>128</td></tr><tr><td>前 1 名（平滑5 日）</td><td class='num'>-3.28%</td><td class='num'>-20.75%</td><td class='num'>-0.07</td><td class='num'>29.9%</td><td class='num'>110</td></tr><tr><td>前 3 名（平滑1 日）</td><td class='num'>+0.72%</td><td class='num'>-9.95%</td><td class='num'>0.14</td><td class='num'>30.1%</td><td class='num'>161</td></tr><tr><td>前 3 名（平滑5 日）</td><td class='num'>-2.60%</td><td class='num'>-11.40%</td><td class='num'>-0.29</td><td class='num'>30.0%</td><td class='num'>127</td></tr></table>
+<p class="small">单因子最强版是前 3 名 +0.72%/−9.95%；<b>满仓单押最强行业反而亏 3~10 个百分点且回撤 −20% 以上</b>，说明“最强行业”这个信号在 2026 年不可靠。</p>
+
+<h2>三、行业强弱多因子暴露打分（40 日窗）</h2>
+<p>12 个行业（半导体/军工/医药/券商/银行/煤炭/钢铁/酒/消费/新能源/光伏/有色）每日截面打分，取前 N 名按等权配置 30% 股票仓位，其余给十年国债 ETF。因子：动量 20 日、动量 40 日、相对沪深300 强度、波动倒数、成交额占比分位（拥挤度）、均线趋势加分，权重 0.30/0.22/0.20/0.13/0.15，趋势加分 0.25。</p>
+<table><tr><th>选样</th><th>收益</th><th>最大回撤</th><th>夏普</th><th>平均股仓</th><th>调仓次数</th></tr>
+<tr><td>前 1 名（平滑1 日）</td><td class='num'>-1.57%</td><td class='num'>-20.33%</td><td class='num'>0.02</td><td class='num'>29.9%</td><td class='num'>108</td></tr><tr><td>前 1 名（平滑5 日）</td><td class='num'>-6.17%</td><td class='num'>-22.03%</td><td class='num'>-0.25</td><td class='num'>29.9%</td><td class='num'>98</td></tr><tr><td>前 2 名（平滑1 日）</td><td class='num'>-0.99%</td><td class='num'>-12.25%</td><td class='num'>-0.04</td><td class='num'>30.0%</td><td class='num'>149</td></tr><tr><td>前 2 名（平滑5 日）</td><td class='num'>-2.67%</td><td class='num'>-11.26%</td><td class='num'>-0.21</td><td class='num'>30.0%</td><td class='num'>112</td></tr><tr><td>前 3 名（平滑1 日）</td><td class='num'>-2.91%</td><td class='num'>-10.92%</td><td class='num'>-0.34</td><td class='num'>30.0%</td><td class='num'>188</td></tr><tr><td>前 3 名（平滑5 日）</td><td class='num'>+0.61%</td><td class='num'>-8.13%</td><td class='num'>0.13</td><td class='num'>30.0%</td><td class='num'>111</td></tr></table>
+<p class="small">平滑 5 日＝对得分取 5 日均值后再排序，用于降低换手；表中已含 5bp 双边摩擦。</p>
+
+<h2>四、XGBoost walk-forward 打分</h2>
+<p>同一因子表作为特征，标签为「次日行业收益」，滚动训练：仅使用结果已实现（≤t-2）的样本，最小训练窗口 60 日 × 12 行业，每 5 个交易日重估，预测当日行业排序。XGBoost 3.4.1，深度 3、学习率 0.05、120 轮。</p>
+<table><tr><th>窗口</th><th>选样</th><th>收益</th><th>最大回撤</th><th>夏普</th><th>平均股仓</th><th>调仓次数</th></tr>
+<tr><td>40 日窗</td><td>前 1 名</td><td class='num'>-19.88%</td><td class='num'>-26.71%</td><td class='num'>-1.24</td><td class='num'>30.0%</td><td class='num'>438</td></tr><tr><td>40 日窗</td><td>前 3 名</td><td class='num'>-12.55%</td><td class='num'>-17.65%</td><td class='num'>-1.74</td><td class='num'>30.0%</td><td class='num'>799</td></tr><tr><td>60 日窗</td><td>前 1 名</td><td class='num'>-14.22%</td><td class='num'>-20.31%</td><td class='num'>-0.79</td><td class='num'>30.0%</td><td class='num'>430</td></tr><tr><td>60 日窗</td><td>前 3 名</td><td class='num'>-3.27%</td><td class='num'>-8.98%</td><td class='num'>-0.41</td><td class='num'>30.0%</td><td class='num'>757</td></tr></table>
+<div class="note"><b>过程中发现并修正一处未来函数</b>：首版 XGBoost 用了当日因子（含当日收盘）预测当日收益，跑出 +55.91%/−4.50% 的假结果；改为特征同样 shift(1) 后跌到 −19.88%/−26.71%。这条记录保留在此，用于说明为什么后续所有版本都要先做前视自检。</div>
+<p>特征重要性（40 日窗，gain 归一）：拥挤度 0.0087、波动 0.0078、相对强度 0.0044、动量 40 日 0.0039、动量 20 日 0.0033、趋势 0.0028——六个因子的重要性几乎均等且都很低，说明模型没有学到稳定的行业轮动结构。</p>
+
+<h2>五、40 日窗与 60 日窗的差别</h2>
+<table><tr><th>方案</th><th>40 日收益</th><th>40 日回撤</th><th>60 日收益</th><th>60 日回撤</th><th>收益差</th></tr>
+<tr><td>多因子 前 1 名·平滑 5 日</td><td class='num'>-6.17%</td><td class='num'>-22.03%</td><td class='num'>-8.31%</td><td class='num'>-21.82%</td><td class='num'>+2.14pp</td></tr><tr><td>多因子 前 3 名·平滑 5 日</td><td class='num'>+0.61%</td><td class='num'>-8.13%</td><td class='num'>-0.43%</td><td class='num'>-8.51%</td><td class='num'>+1.04pp</td></tr><tr><td>XGBoost 前 1 名</td><td class='num'>-19.88%</td><td class='num'>-26.71%</td><td class='num'>-14.22%</td><td class='num'>-20.31%</td><td class='num'>-5.66pp</td></tr><tr><td>XGBoost 前 3 名</td><td class='num'>-12.55%</td><td class='num'>-17.65%</td><td class='num'>-3.27%</td><td class='num'>-8.98%</td><td class='num'>-9.28pp</td></tr></table>
+<p>40 日对多因子是小幅改善（+1.0~2.1pp），对 XGBoost 是明显恶化（−5.7~−9.3pp）——训练样本从 60 日缩到 40 日后过拟合更重、调仓次数升到 400~800 次。缩短窗口不是解药。</p>
+
+<h2>六、为什么打分无效：信号本身没有区分力</h2>
+<ul>
+<li>因子得分与未来收益的截面 IC：次日 <b>+0.056</b>、5 日 <b>+0.070</b>、20 日 <b>+0.030</b>，IC&gt;0 占比 54%~58%——有微弱正向关系，但远低于可用阈值。</li>
+<li>得分第一名次日相对行业截面平均<b>跑输 0.14%</b>，胜率 48%：排序头部不可靠，典型“动量追高在反转年失效”。</li>
+<li>2026 行业收益极度分化且反转快：煤炭 +13.1%、银行 +7.0%、医药 +0.3%，而半导体 −49.3%、新能源 −28.3%、军工 −27.4%。30% 仓位押错一次就是 −8pp 量级。</li>
+</ul>
+
+<h2>七、数据边界</h2>
+<ul>
+<li>行业 ETF 日线自 2025-01 起（部分 2025 年中），因子表可用样本 367 个交易日，2026 年只有约 200 个交易日，单年结果不足以判断稳定性。</li>
+<li>拥挤度用成交额占比分位，受 ETF 申赎与规模变化影响，不等价于真实行业资金流。</li>
+<li>全部为 ETF 现货、无杠杆、无期权对冲；不含停牌、涨跌停无法成交、冲击成本与容量约束。</li>
+<li>截面只有 12 个行业，XGBoost 的训练样本量（60 日 × 12）偏小，属于弱数据条件下的对照实验，不代表方法上限。</li>
+<li>基准方案（+6.69%/−7.03%）来自本工程既有状态机引擎，口径一致但参数为样本内筛选。</li>
+</ul>
+
+<div class="warn">本内容由人工智能基于历史数据回测生成，仅供研究与交流，不构成任何投资建议、收益承诺或交易依据。全部结果为样本内回测，参数经过事后比较，存在过拟合风险；历史表现不代表未来。市场有风险，投资需谨慎。</div>
+<footer>数据：新浪 ETF 日线（close/amount），区间 2025-05-07 至 2026-11-06；计算口径见各节说明。</footer>
+</div></body></html>

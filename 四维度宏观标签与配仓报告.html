@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>四维度宏观标签与配仓：2026 年回测</title>
+<style>
+:root{--ink:#12161C;--sub:#5A6472;--line:#E3E7EE;--bg:#F7F8FA;--accent:#1F3A5F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","PingFang SC",system-ui,sans-serif;font-size:14.5px;line-height:1.72}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 26px 60px}
+header{border-bottom:3px solid var(--accent);padding-bottom:16px;margin-bottom:24px}
+.ttl{font-size:24px;line-height:1.36;margin:0 0 10px}
+.meta{color:var(--sub);font-size:12.5px}
+h1.sec{font-size:18px;margin:34px 0 12px;padding-left:11px;border-left:4px solid var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;background:#fff}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#F2F5F9;font-weight:600;font-size:12.5px;color:#2B3442}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lead{background:#fff;border-left:4px solid var(--accent);padding:14px 18px;margin:16px 0;border-radius:0 8px 8px 0}
+.note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 15px;font-size:13px;color:#7C4A03;margin:12px 0}
+.warn{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 15px;font-size:13px;color:#7F1D1D;margin:12px 0}
+ul,ol{margin:8px 0 8px 20px;padding:0} li{margin:5px 0}
+.small{font-size:12.5px;color:var(--sub)}
+footer{margin-top:38px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:12.5px}
+</style></head><body><div class="wrap">
+
+<header>
+<div class="ttl">把“通胀”拆成四个维度之后：标签贴合事实了，收益还是接近 0</div>
+<div class="meta">区间 2026-01-05 ~ 2026-11-06（203 个交易日）｜32 只 ETF｜月度重设｜5bp 单边成本｜
+宏观数据按发布日截断｜不构成投资建议</div>
+</header>
+
+<div class="lead">
+<p><strong>这次按你的方向做：不再用一个“商品强通胀”标签，把状态拆成需求（CPI）、供给（PPI+油价）、增长（PMI+M1）、流动性（股指基差+期权波动）四个维度。</strong>
+当期标签是 <strong>“需求弱(CPI&lt;1)｜供给强冲击(油↑)｜增长偏弱｜流动性中性”</strong>，比之前那个 86.8% 的“商品强通胀”贴合事实。</p>
+<p>配仓结果：<strong>2% 熔断下 −0.2%、最大回撤 −4.21%（守住 5%）；3% 熔断下 −3.0%、回撤 −6.90%（破线）</strong>。
+卖波动叠加更差（−2.1%/−5.25%），买保护没有改善。</p>
+<p>结论：<strong>标签改对了，但 2026 年这套配置赚不到钱。</strong>因为钱在原油（+86.8%），而四维度规则只在“供给强冲击且油价上行”时给原油 12%，
+还因为 7 月触发“流动性紧”把风险资产砍半——一年里真正吃到油价的月份只有 8–11 月。</p>
+</div>
+
+<h1 class="sec">一、宏观接口怎么复用（照你说的，从其他任务抄）</h1>
+<table>
+<tr><th>指标</th><th>来源</th><th>口径</th></tr>
+<tr><td>PPI</td><td>macro_monthly_report 的 <code>fetch_data.fetch_ppi()</code>（东财 RPT_ECONOMY_PPI）</td><td>当月同比 %，实时可取，2026-09 = 5.0</td></tr>
+<tr><td>M1 / M2</td><td><code>fetch_data.fetch_m1()</code>（akshare macro_china_money_supply，失败回退东财）</td><td>同比 %，2026-09 M1 3.2 / M2 7.2</td></tr>
+<tr><td>PMI</td><td>macro_monthly_report 的 <code>pmi_fetch.py</code> 解析统计局发布页 → <code>pmi_latest.json</code></td><td>官方制造业 PMI，2026-09 = 50.1</td></tr>
+<tr><td>CPI</td><td>本地 <code>macro_2026.json</code>（统计局发布值）</td><td>同比 %，2026-09 = 0.9</td></tr>
+<tr><td>流动性</td><td>IF 主力连续 vs 沪深300（akshare）、300ETF QVIX</td><td>20 日均基差 %、QVIX 的 252 日分位</td></tr>
+</table>
+<h3>1.1 2026 年逐月宏观序列（按发布日截断，无未来函数）</h3>
+<table>
+<tr><th>月份</th><th class="num">CPI</th><th class="num">PPI</th><th class="num">PMI</th><th class="num">M1</th><th class="num">M2</th><th>CPI 发布日</th></tr>
+<tr><td>2026-01</td><td class='num'>0.2</td><td class='num'>-1.4</td><td class='num'>49.3</td><td class='num'>4.9</td><td class='num'>9.0</td><td>2026-02-09</td></tr><tr><td>2026-02</td><td class='num'>1.3</td><td class='num'>-0.9</td><td class='num'>49.0</td><td class='num'>5.9</td><td class='num'>9.0</td><td>2026-03-09</td></tr><tr><td>2026-03</td><td class='num'>1.0</td><td class='num'>0.5</td><td class='num'>50.4</td><td class='num'>5.1</td><td class='num'>8.5</td><td>2026-04-09</td></tr><tr><td>2026-04</td><td class='num'>1.2</td><td class='num'>2.8</td><td class='num'>50.3</td><td class='num'>5.0</td><td class='num'>8.6</td><td>2026-05-09</td></tr><tr><td>2026-05</td><td class='num'>1.3</td><td class='num'>3.9</td><td class='num'>50.0</td><td class='num'>5.5</td><td class='num'>8.6</td><td>2026-06-09</td></tr><tr><td>2026-06</td><td class='num'>1.0</td><td class='num'>4.1</td><td class='num'>50.3</td><td class='num'>4.0</td><td class='num'>8.0</td><td>2026-07-09</td></tr><tr><td>2026-07</td><td class='num'>0.5</td><td class='num'>3.5</td><td class='num'>49.2</td><td class='num'>4.0</td><td class='num'>7.7</td><td>2026-08-09</td></tr><tr><td>2026-08</td><td class='num'>0.8</td><td class='num'>3.8</td><td class='num'>49.8</td><td class='num'>4.1</td><td class='num'>7.5</td><td>2026-09-09</td></tr><tr><td>2026-09</td><td class='num'>0.9</td><td class='num'>5.0</td><td class='num'>50.1</td><td class='num'>3.2</td><td class='num'>7.2</td><td>2026-10-09</td></tr>
+</table>
+
+<h1 class="sec">二、四个维度的判定规则</h1>
+<table>
+<tr><th style="width:16%">维度</th><th>分档</th><th style="width:28%">当前取值</th></tr>
+<tr><td>需求（CPI）</td><td>CPI&lt;1.0 需求弱；1.0–2.0 需求温和；&gt;2.0 需求过热</td><td>0.9 → 需求弱</td></tr>
+<tr><td>供给（PPI+油价）</td><td>PPI&lt;0 无冲击；0–3 温和上行；&gt;3 强冲击；叠加油价 60 日动量的方向</td><td>PPI 5.0、油 60 日 +12.7% → 强冲击(油↑)</td></tr>
+<tr><td>增长（PMI+M1）</td><td>PMI≥50.5 且 M1≥5.0 偏强；PMI&lt;49.5 或 M1&lt;4.0 偏弱；其余中性</td><td>50.1 / 3.2 → 增长偏弱</td></tr>
+<tr><td>流动性（基差+QVIX）</td><td>IF 20 日均基差 ≤ −1.5% 或 QVIX 分位 ≥85% → 紧；否则中性</td><td>基差 −1.48%、分位 54% → 中性</td></tr>
+</table>
+<h3>2.1 逐月四维度标签</h3>
+<table>
+<tr><th>月份起始</th><th class="num">CPI</th><th class="num">PPI</th><th class="num">油价 60 日</th><th class="num">基差</th><th>标签</th></tr>
+<tr><td>2026-01-05</td><td class='num'></td><td class='num'></td><td class='num'>-0.10</td><td class='num'>-0.65%</td><td>数据不足｜数据不足｜数据不足｜流动性中性</td></tr><tr><td>2026-02-02</td><td class='num'></td><td class='num'></td><td class='num'>+0.22</td><td class='num'>-0.08%</td><td>数据不足｜数据不足｜数据不足｜流动性中性</td></tr><tr><td>2026-03-02</td><td class='num'>0.2</td><td class='num'>-1.4</td><td class='num'>+0.41</td><td class='num'>-0.07%</td><td>需求弱(CPI<1)｜无供给冲击｜增长偏弱｜流动性中性</td></tr><tr><td>2026-04-01</td><td class='num'>1.3</td><td class='num'>-0.9</td><td class='num'>+0.88</td><td class='num'>-1.36%</td><td>需求温和｜无供给冲击｜增长中性｜流动性中性</td></tr><tr><td>2026-05-06</td><td class='num'>1.0</td><td class='num'>0.5</td><td class='num'>+0.47</td><td class='num'>-1.29%</td><td>需求温和｜供给温和上行(油↑)｜增长中性｜流动性中性</td></tr><tr><td>2026-06-01</td><td class='num'>1.2</td><td class='num'>2.8</td><td class='num'>+0.13</td><td class='num'>-0.86%</td><td>需求温和｜供给温和上行(油↑)｜增长中性｜流动性中性</td></tr><tr><td>2026-07-01</td><td class='num'>1.3</td><td class='num'>3.9</td><td class='num'>-0.27</td><td class='num'>-1.81%</td><td>需求温和｜供给强冲击(油↓)｜增长中性｜流动性紧(深贴水/高波动)</td></tr><tr><td>2026-08-03</td><td class='num'>1.0</td><td class='num'>4.1</td><td class='num'>-0.05</td><td class='num'>-1.39%</td><td>需求温和｜供给强冲击(油↓)｜增长偏弱｜流动性中性</td></tr><tr><td>2026-09-01</td><td class='num'>0.5</td><td class='num'>3.5</td><td class='num'>-0.14</td><td class='num'>-0.80%</td><td>需求弱(CPI<1)｜供给强冲击(油↓)｜增长中性｜流动性中性</td></tr><tr><td>2026-10-08</td><td class='num'>0.8</td><td class='num'>3.8</td><td class='num'>+0.18</td><td class='num'>-1.26%</td><td>需求弱(CPI<1)｜供给强冲击(油↑)｜增长中性｜流动性中性</td></tr><tr><td>2026-11-02</td><td class='num'>0.9</td><td class='num'>5.0</td><td class='num'>+0.13</td><td class='num'>-1.48%</td><td>需求弱(CPI<1)｜供给强冲击(油↑)｜增长偏弱｜流动性中性</td></tr>
+</table>
+
+<h1 class="sec">三、按标签配仓的规则</h1>
+<ul>
+<li>底仓：十年国债 45%、活跃国债 25%、红利 15%、低波 10%、黄金 5%。</li>
+<li>供给强冲击且油价上行：商品共 20%（原油 12%、豆粕 5%、煤炭 3%），从国债与活跃国债各挪 10%。</li>
+<li>供给温和上行且油价上行：商品共 10%（原油 6%、豆粕 2%、煤炭 2%）。</li>
+<li>增长偏强：加纳指 8% + 沪深300 7%，从债券挪。</li>
+<li>流动性紧：商品与权益权重各砍一半，转入活跃国债。</li>
+<li>执行：月度重设；回撤熔断（下文两档）；单边 5bp 成本。</li>
+</ul>
+<h3>3.1 逐月实际持仓</h3>
+<table>
+<tr><th>月份</th><th>标签</th><th>持仓</th></tr>
+<tr><td>2026-01</td><td>数据不足｜数据不足｜数据不足｜流动性中性</td><td>十年国债ETF 45%、活跃国债ETF 25%、红利ETF 15%、低波ETF 10%、黄金ETF 5%</td></tr><tr><td>2026-02</td><td>数据不足｜数据不足｜数据不足｜流动性中性</td><td>十年国债ETF 45%、活跃国债ETF 25%、红利ETF 15%、低波ETF 10%、黄金ETF 5%</td></tr><tr><td>2026-03</td><td>需求弱(CPI<1)｜无供给冲击｜增长偏弱｜流动性中性</td><td>十年国债ETF 45%、活跃国债ETF 25%、红利ETF 15%、低波ETF 10%、黄金ETF 5%</td></tr><tr><td>2026-04</td><td>需求温和｜无供给冲击｜增长中性｜流动性中性</td><td>十年国债ETF 45%、活跃国债ETF 25%、红利ETF 15%、低波ETF 10%、黄金ETF 5%</td></tr><tr><td>2026-05</td><td>需求温和｜供给温和上行(油↑)｜增长中性｜流动性中性</td><td>十年国债ETF 40%、活跃国债ETF 20%、红利ETF 15%、低波ETF 10%、黄金ETF 5%、原油ETF 6%、豆粕ETF 2%、煤炭ETF 2%</td></tr><tr><td>2026-06</td><td>需求温和｜供给温和上行(油↑)｜增长中性｜流动性中性</td><td>十年国债ETF 40%、活跃国债ETF 20%、红利ETF 15%、低波ETF 10%、黄金ETF 5%、原油ETF 6%、豆粕ETF 2%、煤炭ETF 2%</td></tr><tr><td>2026-07</td><td>需求温和｜供给强冲击(油↓)｜增长中性｜流动性紧(深贴水/高波动)</td><td>十年国债ETF 40%、活跃国债ETF 38%、红利ETF 8%、低波ETF 5%、黄金ETF 10%</td></tr><tr><td>2026-08</td><td>需求温和｜供给强冲击(油↑)｜增长偏弱｜流动性中性</td><td>十年国债ETF 35%、活跃国债ETF 15%、红利ETF 15%、低波ETF 10%、黄金ETF 5%、原油ETF 12%、豆粕ETF 5%、煤炭ETF 3%</td></tr><tr><td>2026-09</td><td>需求弱(CPI<1)｜供给强冲击(油↓)｜增长中性｜流动性中性</td><td>十年国债ETF 40%、活跃国债ETF 25%、红利ETF 15%、低波ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-10</td><td>需求弱(CPI<1)｜供给强冲击(油↑)｜增长中性｜流动性中性</td><td>十年国债ETF 35%、活跃国债ETF 15%、红利ETF 15%、低波ETF 10%、黄金ETF 5%、原油ETF 12%、豆粕ETF 5%、煤炭ETF 3%</td></tr><tr><td>2026-11</td><td>需求弱(CPI<1)｜供给强冲击(油↑)｜增长偏弱｜流动性中性</td><td>十年国债ETF 35%、活跃国债ETF 15%、红利ETF 15%、低波ETF 10%、黄金ETF 5%、原油ETF 12%、豆粕ETF 5%、煤炭ETF 3%</td></tr>
+</table>
+
+<h1 class="sec">四、回测结果与对照</h1>
+<table>
+<tr><th>方案</th><th class="num">年内收益</th><th class="num">最大回撤</th><th class="num">年化波动</th><th class="num">夏普</th></tr>
+<tr><td><strong>四维度配仓（3% 熔断）</strong></td><td class="num">-3.0%</td><td class="num">-6.90%</td><td class="num">4.7%</td><td class="num">-0.79</td></tr>
+<tr><td><strong>四维度配仓（2% 熔断，推荐）</strong></td><td class="num">-0.2%</td><td class="num">-4.21%</td><td class="num">3.9%</td><td class="num">-0.07</td></tr>
+<tr><td>四维度 + 卖波动（低波时）</td><td class="num">-2.1%</td><td class="num">-5.25%</td><td class="num">4.1%</td><td class="num">-0.64</td></tr>
+<tr><td>四维度 + 买保护（高波时）</td><td class="num">-3.0%</td><td class="num">-6.90%</td><td class="num">4.7%</td><td class="num">-0.79</td></tr>
+<tr><td>固定配比 55/15/15/10/5 + 3% 熔断</td><td class="num">+17.5%</td><td class="num">-4.06%</td><td class="num">9.7%</td><td class="num">2.30</td></tr>
+<tr><td>旧动态池×波动预算</td><td class="num">-1.6%</td><td class="num">-3.69%</td><td class="num">2.5%</td><td class="num">-0.81</td></tr>
+<tr><td>四项全改</td><td class="num">-3.5%</td><td class="num">-7.82%</td><td class="num">6.1%</td><td class="num">-0.71</td></tr>
+</table>
+<p class="small">2% 与 1.5% 熔断结果相同（−0.2%/−4.21%），说明 2026 年的亏损不是“一次大回撤”造成，而是慢跌磨出来的——收紧熔断只是少亏，不能转正。</p>
+
+<h1 class="sec">五、为什么标签对了、钱还是赚不到</h1>
+<ul>
+<li><strong>吃到油价的月份太少。</strong>四维度规则只在“强冲击 + 油价上行”给原油 12%，2026 年符合的只有 8–11 月；5–6 月是“温和上行”只给 6%；7 月“流动性紧”直接把商品砍半。全年原油平均权重约 5%–6%，而固定配比一直是 15%。</li>
+<li><strong>防御腿太薄。</strong>十年国债 +1.7%、红利 +6.0%、低波 +5.5%、黄金 −13.1%，加权后年化只有 2% 出头，扣掉月度切换与成本就归零。</li>
+<li><strong>卖波动是负期望。</strong>QVIX 分位低于 30% 的窗口在 2026 年只有零星几天，carry 抵不上跳空，收益从 −0.2% 掉到 −2.1%、回撤破 5%。</li>
+<li><strong>买保护无效。</strong>回撤来自资产同跌与切换摩擦，不是尾部跳跃，期权没有对冲对象。</li>
+</ul>
+<div class="warn"><strong>一句话：四维度标签解决的是“命名与归因”，不解决“选资产赚钱”。</strong>
+2026 年的收益高度集中在原油一个资产上，任何分散化或防御化的规则都会把它稀释掉；
+要同时拿到 5% 回撤和高收益，靠的不是更细的状态划分，而是“敢不敢在供给冲击里给原油 15%–20% 的固定权重”。</div>
+
+<h1 class="sec">六、稳健性</h1>
+<ul>
+<li>成本 10bp：-0.3% / -4.25%（几乎无影响，月度换手 3 次左右）</li>
+<li>上半年 +0.9% / -2.18%；下半年 -1.1% / -2.54%</li>
+<li>熔断 1.5% / 2% / 3%：−0.2%/−4.21%、−0.2%/−4.21%、−3.0%/−6.90%（只剩 3% 档会破线）</li>
+</ul>
+
+<h1 class="sec">七、口径与局限</h1>
+<ul class="small">
+<li>区间 2026-01-05~2026-11-06，203 个交易日；32 只 ETF；5bp 单边成本；月度重设。</li>
+<li>宏观按发布日截断：CPI/PPI 次月 9 日、M2 次月 12 日、PMI 月末；1–2 月因 2025 年数据不在本地标为“数据不足”，配置退化为防御底仓。</li>
+<li>标签阈值（CPI 1.0/2.0、PPI 0/3、PMI 50.5/49.5、基差 −1.5%、QVIX 85%）是工程设定，不是估计值；换阈值结果会变。</li>
+<li>国债期货基差需 CTD 券不可得，只用了股指期货基差；期权链与偏度不可得，波动叠加为近似模型。</li>
+</ul>
+
+<footer>
+<p><strong>免责声明：</strong>本报告为历史数据回测与方法演示，收益与回撤均为模型输出，<strong>不构成投资建议</strong>，不构成对未来收益的承诺。样本仅 203 个交易日，结论只对 2026 年成立。ETF 存在溢价与流动性风险，期权含杠杆，投资有风险。</p>
+<p>口径：2026-01-05 ~ 2026-11-06（203 个交易日）｜32 只 ETF｜5bp 单边成本｜生成于 2026-11-08</p>
+</footer>
+</div></body></html>

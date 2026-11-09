@@ -1,0 +1,111 @@
+{
+  "monthly": [
+    {
+      "month": "2026-01",
+      "days": 20,
+      "breaker_values": [
+        1.0
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 0
+    },
+    {
+      "month": "2026-02",
+      "days": 14,
+      "breaker_values": [
+        1.0,
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 2
+    },
+    {
+      "month": "2026-03",
+      "days": 22,
+      "breaker_values": [
+        1.0
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 0
+    },
+    {
+      "month": "2026-04",
+      "days": 21,
+      "breaker_values": [
+        1.0,
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 3
+    },
+    {
+      "month": "2026-05",
+      "days": 18,
+      "breaker_values": [
+        0.5,
+        1.0
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 1
+    },
+    {
+      "month": "2026-06",
+      "days": 21,
+      "breaker_values": [
+        1.0,
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 1
+    },
+    {
+      "month": "2026-07",
+      "days": 23,
+      "breaker_values": [
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 0
+    },
+    {
+      "month": "2026-08",
+      "days": 21,
+      "breaker_values": [
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 0
+    },
+    {
+      "month": "2026-09",
+      "days": 21,
+      "breaker_values": [
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 0
+    },
+    {
+      "month": "2026-10",
+      "days": 17,
+      "breaker_values": [
+        0.5,
+        1.0
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 1
+    },
+    {
+      "month": "2026-11",
+      "days": 5,
+      "breaker_values": [
+        1.0,
+        0.5
+      ],
+      "target_constant_ex_breaker": true,
+      "intra_month_changes": 1
+    }
+  ],
+  "n_days": 203,
+  "intra": 9
+}

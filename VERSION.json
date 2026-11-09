@@ -1,0 +1,136 @@
+{
+  "version": "v1.1-20261109",
+  "frozen_at": "2026-11-09 18:03",
+  "purpose": "Anchor-Lite 宽基组合复核 + 行业强弱/资金流/渐进调仓对照（研究用）",
+  "basis": {
+    "type": "宽基ETF场内收盘价（非指数点位、非成分股）",
+    "symbols": {
+      "hs300": "510300",
+      "zz500": "510500",
+      "cyb": "159915",
+      "kc50": "588000",
+      "nasdaq": "513100",
+      "dividend": "510880",
+      "oil": "501018",
+      "treasury10_etf": "511260"
+    }
+  },
+  "key_params": {
+    "stock_base": 0.42,
+    "dd": 0.016,
+    "dd2": 0.02,
+    "nas_indep": true,
+    "reset_mode": "all3",
+    "sel_freq": "weekly",
+    "check_freq": "daily",
+    "cost_bps": 5,
+    "stock_cap": 0.3
+  },
+  "scripts": [
+    {
+      "script": "long2022.py",
+      "sha256_16": "a8cf0708b4b3f1b7",
+      "bytes": 17346,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "style_regime.py",
+      "sha256_16": "2dc54165db197a7b",
+      "bytes": 11935,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "factor_table.py",
+      "sha256_16": "0881244ab63118f3",
+      "bytes": 3102,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "flow_factors.py",
+      "sha256_16": "f459c14af95fec13",
+      "bytes": 4305,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "mf_backtest.py",
+      "sha256_16": "6d3f7e9c06ea4ddd",
+      "bytes": 2537,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "xgb_backtest.py",
+      "sha256_16": "5361486cbc22d942",
+      "bytes": 3435,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "gradual.py",
+      "sha256_16": "1eda578e3c4d975a",
+      "bytes": 4357,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "ind2026.py",
+      "sha256_16": "70e7b79d2b0f1587",
+      "bytes": 4030,
+      "mtime": "2026-11-09"
+    },
+    {
+      "script": "ext_pool.py",
+      "sha256_16": "b5f580c09473ba67",
+      "bytes": 1414,
+      "mtime": "2026-11-09"
+    }
+  ],
+  "data_files_count": 33,
+  "data_files": [
+    "bank_full.csv",
+    "broker_full.csv",
+    "china_internet_full.csv",
+    "citybond_full.csv",
+    "coal_full.csv",
+    "consumer_full.csv",
+    "corp_bond_full.csv",
+    "cyb_full.csv",
+    "dividend_full.csv",
+    "gold_full.csv",
+    "hs300_full.csv",
+    "hstech_full.csv",
+    "kc50_full.csv",
+    "liquor_full.csv",
+    "lowvol_full.csv",
+    "military_full.csv",
+    "nasdaq2_full.csv",
+    "nasdaq_full.csv",
+    "newenergy_full.csv",
+    "nikkei_full.csv",
+    "nonferrous_full.csv",
+    "oil_full.csv",
+    "pharma_full.csv",
+    "semiconductor_full.csv",
+    "solar_full.csv",
+    "soybean_full.csv",
+    "sp500_full.csv",
+    "steel_full.csv",
+    "treasury10_etf_full.csv",
+    "treasury_active_full.csv",
+    "treasury_etf_full.csv",
+    "zz1000_full.csv",
+    "zz500_full.csv"
+  ],
+  "backtest_window": "2020-01-02 ~ 2026-11-06（2026-11-06 为最新可得收盘）",
+  "known_gaps": [
+    "ETF 份额/申赎历史不可得，资金流仅用量价代理",
+    "ETF 价格为价格口径，不含分红再投",
+    "未计冲击成本与容量约束",
+    "科创50 ETF 自 2020-11 起、行业 ETF 多数自 2025-01 起"
+  ],
+  "change_note": "在 long2022.py 轨迹中新增目标权重组（tgt_*），仅记录日志，不改变算法与参数",
+  "artifacts": {
+    "positions_snapshot.json": "最新持仓与实际/目标权重",
+    "trade_ticket.json": "下一交易日模拟调仓单",
+    "risk_spec.json": "风控参数与触发状态",
+    "push_receipt.json": "飞书推送回执",
+    "宽基组合复核_v1.2-20261109.md": "含仓位/权重/风控/调仓单的报告"
+  }
+}

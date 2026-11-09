@@ -1,0 +1,56 @@
+{
+  "macro_to_pool": {
+    "低波趋势": {
+      "a_share": 2,
+      "overseas": 2,
+      "bond": 1,
+      "commodity": 0
+    },
+    "温和通胀": {
+      "a_share": 1,
+      "overseas": 2,
+      "bond": 1,
+      "commodity": 1
+    },
+    "商品强通胀": {
+      "a_share": 0,
+      "overseas": 1,
+      "bond": 1,
+      "commodity": 3
+    },
+    "紧缩利率上行": {
+      "a_share": 0,
+      "overseas": 1,
+      "bond": 3,
+      "commodity": 1
+    },
+    "增长放缓": {
+      "a_share": 0,
+      "overseas": 1,
+      "bond": 3,
+      "commodity": 1
+    },
+    "流动性危机": {
+      "a_share": 0,
+      "overseas": 0,
+      "bond": 4,
+      "commodity": 1
+    },
+    "衰退通缩": {
+      "a_share": 0,
+      "overseas": 1,
+      "bond": 3,
+      "commodity": 1
+    },
+    "震荡未知": {
+      "a_share": 1,
+      "overseas": 2,
+      "bond": 2,
+      "commodity": 1
+    }
+  },
+  "pool_member_pick": "组内按 60 日动量排序取前 k 个，要求 20 日均成交额 ≥ 1 亿元（流动性门槛）",
+  "vol_regime": "全资产 20 日波动率中位数 vs 过去 252 日分位：<25% 低波→12%；25-60% 中波→9%；60-85% 高波→6%；>85% 极端→3%",
+  "weight_rule": "池内逆波动加权 w0；再按 σ_target/σ(w0) 缩放，缩放上限 1.0（不加杠杆）",
+  "switch_freq": "宏观状态与波动档位月度重设；熔断日频（回撤 3% 减半、1.5% 恢复）"
+}

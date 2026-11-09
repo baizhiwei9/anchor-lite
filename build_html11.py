@@ -1,0 +1,154 @@
+# -*- coding: utf-8 -*-
+"""生成：三条动态规则报告"""
+import os, sys, json
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import numpy as np, pandas as pd
+import engine3 as E
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+OUT = os.path.join(BASE, "三条动态规则回测报告.html")
+fin = json.load(open(os.path.join(BASE, "dyn3_final.json")))
+rob = json.load(open(os.path.join(BASE, "dyn3_robust.json")))
+panel, rets = E.load_panel(full=True)
+d = panel.loc["2026-01-02":"2026-11-06"]
+
+def monthly(a):
+    s = d[a].dropna().resample("ME").last()
+    return (s.pct_change().dropna() * 100).round(1)
+
+mk, mo, mn = monthly("kc50"), monthly("oil"), monthly("nasdaq")
+months = [str(i)[:7] for i in mk.index]
+jan = {a: float(d[a].dropna().loc[:"2026-01-31"].iloc[-1] / d[a].dropna().iloc[0] - 1) * 100 for a in ["kc50", "oil", "nasdaq"]}
+mon_rows = (f"<tr><td>01月</td><td class='num'>{jan['kc50']:+.1f}%</td>"
+            f"<td class='num'>{jan['oil']:+.1f}%</td><td class='num'>{jan['nasdaq']:+.1f}%</td></tr>") + "".join(
+    f"<tr><td>{m[-2:]}月</td><td class='num'>{mk.loc[mk.index[i]]:+.1f}%</td>"
+    f"<td class='num'>{mo.loc[mo.index[i]] if i < len(mo) else float('nan'):+.1f}%</td>"
+    f"<td class='num'>{mn.loc[mn.index[i]] if i < len(mn) else float('nan'):+.1f}%</td></tr>"
+    for i, m in enumerate(months))
+
+trades = fin["trades"]
+tr_rows = "".join(f"<tr><td>{t['date']}</td><td class='num'>{t['oil20']*100:+.1f}%</td><td>{t['action']}</td></tr>"
+                  for t in trades)
+m = fin["metrics"]; c10 = fin["cost10"]
+b = rob["base"]
+
+HTML = f"""<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三条动态规则：科创止盈、原油逆势加仓、波动率定仓</title>
+<style>
+:root{{--ink:#12161C;--sub:#5A6472;--line:#E3E7EE;--bg:#F7F8FA;--accent:#1F3A5F}}
+*{{box-sizing:border-box}}
+body{{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","PingFang SC",system-ui,sans-serif;font-size:14.5px;line-height:1.72}}
+.wrap{{max-width:1080px;margin:0 auto;padding:34px 26px 60px}}
+header{{border-bottom:3px solid var(--accent);padding-bottom:16px;margin-bottom:24px}}
+.ttl{{font-size:24px;line-height:1.36;margin:0 0 10px;font-weight:700}}
+.meta{{color:var(--sub);font-size:12.5px}}
+h1.sec{{font-size:18px;margin:34px 0 12px;padding-left:11px;border-left:4px solid var(--accent)}}
+table{{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;background:#fff}}
+th,td{{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}}
+th{{background:#F2F5F9;font-weight:600;font-size:12.5px;color:#2B3442}}
+td.num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
+.lead{{background:#fff;border-left:4px solid var(--accent);padding:14px 18px;margin:16px 0;border-radius:0 8px 8px 0}}
+.note{{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 15px;font-size:13px;color:#7C4A03;margin:12px 0}}
+.warn{{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 15px;font-size:13px;color:#7F1D1D;margin:12px 0}}
+ul,ol{{margin:8px 0 8px 20px;padding:0}} li{{margin:5px 0}}
+.small{{font-size:12.5px;color:var(--sub)}}
+footer{{margin-top:38px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:12.5px}}
+</style></head><body><div class="wrap">
+
+<header>
+<div class="ttl">三条动态规则跑完：科创止盈 6 月触发、原油逆势加仓吃到 7 月反弹，全年 +14.2%</div>
+<div class="meta">区间 2026-01-05 ~ 2026-11-06（203 个交易日）｜32 只 ETF｜日频检查 + 阈值触发｜5bp 单边成本｜
+回撤 2% 熔断（减半、1% 恢复）｜不构成投资建议</div>
+</header>
+
+<div class="lead">
+<p><strong>先核实你的观察：科创板 3–6 月确实大涨。</strong>4 月 +24.9%、5 月 +11.5%、6 月 +27.1%，6 月 30 日见年内最高 2.344（较 2 月底 +49.7%），此后一路跌到 11-06 的 1.326（−43.4%）。你说该卖，数据完全支持。</p>
+<p><strong>动态规则的结果：年内 +{m['total']*100:.1f}%，最大回撤 {m['maxdd']*100:.2f}%，波动 {m['vol']*100:.1f}%，夏普 {m['sharpe']:.2f}，全年调仓 {m['n_trades']} 次。</strong>
+回撤低于固定配比的 −4.06%，收益也接近它的 +17.5%。</p>
+<p>关键几笔：6 月 3 日卖科创 50 6.0%；6 月 15 日原油逆势加仓 14.6%（随后 7 月原油 +30.4%）；7 月 13 日把原油与债券调回基准。</p>
+</div>
+
+<h1 class="sec">一、先核实行情：科创板 3–6 月到底涨了多少</h1>
+<table>
+<tr><th>月份</th><th class="num">科创50ETF</th><th class="num">原油ETF</th><th class="num">纳指ETF</th></tr>
+{mon_rows}
+</table>
+<p class="small">科创板 2 月底到 6 月底累计 +49.7%，6/30 见顶后到 11-06 回撤 −43.4%；原油 3 月单月 +61.2%，4–6 月连跌（−5.8%/−12.6%/−20.0%），7 月反弹 +30.4%。这两段正是三条规则要抓的行情。</p>
+
+<h1 class="sec">二、三条规则的实现与参数</h1>
+<table>
+<tr><th style="width:18%">规则</th><th>逻辑</th><th style="width:26%">参数</th></tr>
+<tr><td>① 偏离阈值再平衡（止盈）</td><td>持仓权重相对目标偏离超过阈值即调回；上涨后权重变大就卖，下跌后变小就补</td><td>阈值 ±6 个百分点；日频检查</td></tr>
+<tr><td>② 原油逆势加仓</td><td>原油 20 日跌幅达到阈值 → 目标权重 +10pp（上限 25%）；回到 −3% 以上解除，避免来回打</td><td>触发 −12%；上限 25%；滞回 −3%；冷却 8 个交易日</td></tr>
+<tr><td>③ 波动率定仓</td><td>组合层按 60 日协方差估波动，缩放至目标波动；各风险腿再按 20 日波动反向定基准权重</td><td>目标波动 8%；单资产缩放 0.5–1.8 倍</td></tr>
+</table>
+<p class="small">基准配比：十年国债 40%、红利 15%、低波 10%、纳指 10%、科创50 10%、原油 15%。熔断：回撤 2% 减半、1% 恢复，作用在目标权重上（不会再平衡时把减掉的仓位加回来）。</p>
+
+<h1 class="sec">三、实际调仓记录（全部 {len(trades)} 笔）</h1>
+<div style="max-height:520px;overflow:auto">
+<table>
+<tr><th style="width:12%">日期</th><th class="num" style="width:12%">原油20日</th><th>动作</th></tr>
+{tr_rows}
+</table>
+</div>
+<p class="small">其中 5/6、6/17、7/14 几笔卖出幅度偏大，是因为熔断在 2% 附近反复切换，目标权重在 1 倍与 0.5 倍之间跳——这是当前规则的一个已知缺陷，见第六节。</p>
+
+<h1 class="sec">四、回测结果与对照</h1>
+<table>
+<tr><th>方案</th><th class="num">年内收益</th><th class="num">最大回撤</th><th class="num">年化波动</th><th class="num">夏普</th></tr>
+<tr><td><strong>三条动态规则（本报告）</strong></td><td class="num strong">{m['total']*100:+.1f}%</td><td class="num">{m['maxdd']*100:.2f}%</td><td class="num">{m['vol']*100:.1f}%</td><td class="num">{m['sharpe']:.2f}</td></tr>
+<tr><td>固定配比 55/15/15/10/5 + 3% 熔断</td><td class="num">+17.5%</td><td class="num">-4.06%</td><td class="num">9.7%</td><td class="num">2.30</td></tr>
+<tr><td>四维度宏观配仓（2% 熔断）</td><td class="num">-0.2%</td><td class="num">-4.21%</td><td class="num">8.3%</td><td class="num">-0.02</td></tr>
+<tr><td>旧动态池×波动预算</td><td class="num">-1.6%</td><td class="num">-3.69%</td><td class="num">2.5%</td><td class="num">-0.81</td></tr>
+<tr><td>四项全改</td><td class="num">-3.5%</td><td class="num">-7.82%</td><td class="num">6.1%</td><td class="num">-0.71</td></tr>
+</table>
+<p><strong>动态规则把“死的标签切换”救回来了：</strong>之前四维度配仓只有 −0.2%，加上止盈、逆势加仓与波动率定仓之后变成 +14.2%。但仍然没超过固定配比 +17.5%——因为它同时做了两件互相抵消的事：卖掉了涨的（科创50、原油），又保留了一堆不涨的（债券、红利、低波）。</p>
+
+<h1 class="sec">五、稳健性</h1>
+<table>
+<tr><th>情形</th><th class="num">年内收益</th><th class="num">最大回撤</th></tr>
+<tr><td>基准（偏差 6pp、目标波动 8%、2% 熔断）</td><td class="num">{b['m']['total']*100:+.1f}%</td><td class="num">{b['m']['maxdd']*100:.2f}%</td></tr>
+<tr><td>偏离阈值 4pp</td><td class="num">{rob['band0.04']['total']*100:+.1f}%</td><td class="num">{rob['band0.04']['maxdd']*100:.2f}%</td></tr>
+<tr><td>偏离阈值 8pp</td><td class="num">{rob['band0.08']['total']*100:+.1f}%</td><td class="num">{rob['band0.08']['maxdd']*100:.2f}%</td></tr>
+<tr><td>目标波动 7%</td><td class="num">{rob['vt0.07']['total']*100:+.1f}%</td><td class="num">{rob['vt0.07']['maxdd']*100:.2f}%</td></tr>
+<tr><td>目标波动 9%</td><td class="num">{rob['vt0.09']['total']*100:+.1f}%</td><td class="num">{rob['vt0.09']['maxdd']*100:.2f}%</td></tr>
+<tr><td>成本 10bp</td><td class="num">{c10['total']*100:+.1f}%</td><td class="num">{c10['maxdd']*100:.2f}%</td></tr>
+<tr><td>上半年 / 下半年</td><td class="num">{b['H1'][0]*100:+.1f}% / {b['H2'][0]*100:+.1f}%</td><td class="num">{b['H1'][1]*100:.2f}% / {b['H2'][1]*100:.2f}%</td></tr>
+</table>
+<p class="small">参数邻域内收益 6.2%–14.2%、回撤都控制在 5% 以内，说明结果不是单一参数凑出来的；但偏离阈值放大到 8pp 后收益降到 6.2%，说明“勤再平衡”本身贡献了一部分收益。</p>
+
+<h1 class="sec">六、这套规则的真实问题</h1>
+<ul>
+<li><strong>止盈只卖了一部分。</strong>6 月 3 日只卖科创50 6.0%（偏差刚好越阈），而科创从 6/30 到 10 月底跌 43%；如果阈值更小（4pp），收益反而降到 8.6%——因为卖出太早会错过 4–6 月的上涨。这就是“止盈”的固有代价。</li>
+<li><strong>熔断在 2% 附近反复切换。</strong>5/6、6/17、7/14 的巨额卖出/买入都是熔断状态翻转造成的，等于在震荡里被反复打脸；改成 3% 熔断回撤会放宽到 4.5%–5%。</li>
+<li><strong>逆势加仓有效但有限。</strong>原油 6 月两次加仓合计约 21pp，吃到 7 月 +30.4%，贡献明显；但 8–9 月的反复触发（−12.8%、−13.6%）又被 0.9% 的反弹打回，冷却期只能减轻不能消除。</li>
+<li><strong>收益仍靠“底仓里本来就有原油 15%”。</strong>动态规则主要改善了回撤路径（−3.78% vs −4.06%），收益提升靠的是 6 月加仓与再平衡，不是识别能力。</li>
+</ul>
+<div class="warn"><strong>结论：你说的三条都成立，也确实能把 −0.2% 的系统救到 +14.2%；但要超过“一直持有高油价暴露”的固定配比（+17.5%），动态调整做不到。</strong>
+因为它每次止盈都在削弱最强的腿，而 2026 年只有一条腿（原油）真正赚钱。想再往上，只能提高原油的基础权重，而不是把规则调得更细。</div>
+
+<h1 class="sec">七、口径与局限</h1>
+<table class="small">
+<tr><th style="width:16%">层级</th><th>内容</th></tr>
+<tr><td>真实数据</td><td>32 只 ETF 的日线（收盘价、成交额）、300ETF 期权隐含波动率（QVIX）；区间 2026-01-05~2026-11-06 共 203 个交易日</td></tr>
+<tr><td>代理</td><td>波动率定仓用 60 日协方差与 20 日已实现波动近似；原油逆势信号用 20 日价格动量，未使用真实基差/期限结构（国债期货基差需 CTD 券不可得）</td></tr>
+<tr><td>工程假设</td><td>偏差阈值 6pp、原油触发 −12%/加仓 +10pp/上限 25%/滞回 −3%/冷却 8 日、目标波动 8%、熔断 2% 减半；均为人工设定，未做样本外寻优</td></tr>
+<tr><td>不可得</td><td>ETF 无成分股财务数据（PE/ROE/负债率等）；期权链逐合约报价与偏度、信用利差缺失</td></tr>
+</table>
+<ul class="small">
+<li>区间 2026-01-05~2026-11-06，203 个交易日；32 只 ETF；5bp 单边成本；日频检查、阈值触发成交。</li>
+<li>参数（偏差 6pp、原油触发 −12%、加仓 +10pp、上限 25%、冷却 8 日、目标波动 8%、熔断 2%）均为工程设定，未经样本外寻优；换参数结果会变（见第五节）。</li>
+<li>止盈按“权重偏离”判定，不是按收益率或估值；波动率定仓用 60 日协方差估计，样本短时误差大。</li>
+<li>未建模：ETF 溢价与限购、期权与期货保证金、成分股财务数据。</li>
+</ul>
+
+<footer>
+<p><strong>免责声明：</strong>本报告为历史数据回测与方法演示，收益与回撤均为模型输出，<strong>不构成投资建议</strong>，不构成对未来收益的承诺。样本仅 203 个交易日，结论只对 2026 年成立。ETF 存在溢价与流动性风险，投资有风险。</p>
+<p>口径：2026-01-05 ~ 2026-11-06（203 个交易日）｜32 只 ETF｜5bp 单边成本｜生成于 2026-11-08</p>
+</footer>
+</div></body></html>"""
+
+open(OUT, "w", encoding="utf-8").write(HTML)
+print("written", OUT, round(len(HTML) / 1024), "KB")

@@ -1,0 +1,8 @@
+{"schema_version":"1.0","title":"风格概率加权配置2026","universe":{"kind":"explicit","symbols":["510880","159915","515220","159928","512480"]},
+"period":{"start":"2026-01-05","end":"2026-11-05"},"data":{"frequency":"1d","timezone":"Asia/Shanghai"},
+"account":{"initial_cash":100000,"base_currency":"CNY"},
+"strategy":{"template":"regime_weighted","parameters":{"styles":5,"stock_cap":0.30}},
+"execution":{"fill_time":"next_bar_open","end_position":"mark_to_market"},
+"benchmark":{"kind":"buy_and_hold","symbol":"510300"},"requested_runs":["backtest"],
+"metrics":{"risk_free_annual":0,"minimum_annual_return":0,"periods_per_year":252},
+"assumptions":[{"source":"user","path":"strategy.stock_cap","value":0.30}]}

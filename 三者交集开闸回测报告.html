@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>三者同时安全才开闸：期权+均线+波动率交集</title>
+<style>
+:root{--ink:#12161C;--sub:#5A6472;--line:#E3E7EE;--bg:#F7F8FA;--accent:#1F3A5F}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","PingFang SC",system-ui,sans-serif;font-size:14.5px;line-height:1.72}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 26px 60px}
+header{border-bottom:3px solid var(--accent);padding-bottom:16px;margin-bottom:24px}
+.ttl{font-size:24px;margin:0 0 10px;font-weight:700;line-height:1.36}
+.meta{color:var(--sub);font-size:12.5px}
+h1.sec{font-size:18px;margin:34px 0 12px;padding-left:11px;border-left:4px solid var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;background:#fff}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left}
+th{background:#F2F5F9;font-weight:600;font-size:12.5px}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lead{background:#fff;border-left:4px solid var(--accent);padding:14px 18px;margin:16px 0}
+.note{background:#FFFBEB;border:1px solid #FDE68A;padding:12px 15px;font-size:13px;color:#7C4A03;margin:12px 0}
+.warn{background:#FEF2F2;border:1px solid #FECACA;padding:12px 15px;font-size:13px;color:#7F1D1D;margin:12px 0}
+.small{font-size:12.5px;color:var(--sub)}
+.kpi{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+.card{flex:1 1 150px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card .v{font-size:20px;font-weight:700}
+.card .l{font-size:12px;color:var(--sub)}
+footer{margin-top:38px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:12.5px}
+ul,ol{margin:8px 0 8px 20px} li{margin:4px 0}
+</style></head><body><div class="wrap">
+<header><div class="ttl">三者同时安全才开闸<br><span style="font-size:16px;color:var(--sub)">期权偏度 + 均线 + 波动率取交集 · 2022-01-04 至 2026-11-06 · 1172 个交易日 · 单边 5bp</span></div>
+<div class="meta">引擎 anchor_lite/long2022.py｜闸门只负责关，开闸必须三者同时安全｜年度重置不再绕过</div></header>
+
+<div class="lead"><b>结论。</b>按你的要求做成“三者同时安全才开闸”后：全区间 <b>+65.41%</b>（现行 +67.42%）、最大回撤 <b>-4.05%</b>（现行 -4.44%）、夏普 2.17。回撤更小，但<b>关闸天数反而更多</b>：2025 年 126→171 天、2026 年 105→157 天，2026 年股票均仓从 20.1% 降到 18.2%。三者同时安全全区间只有 61 天（5.2%），2026 年只有 2 天——交集太严，闸门几乎打不开。</div>
+
+<div class="kpi">
+<div class="card"><div class="v">+65.41%</div><div class="l">全区间收益</div></div>
+<div class="card"><div class="v">-4.05%</div><div class="l">最大回撤</div></div>
+<div class="card"><div class="v">2025 +13.16%</div><div class="l">2025 年（现行 +11.75%）</div></div>
+<div class="card"><div class="v">2026 +11.64%</div><div class="l">2026 年（现行 +13.41%）</div></div>
+</div>
+
+<h1 class="sec">一、三类“安全”判据与交集</h1>
+<table><tr><th>判据</th><th>触发天数（1172 日）</th></tr><tr><td>期权安全（偏度 z<0.5 且 IV 20 日回落）</td><td class='num'>353</td></tr><tr><td>均线安全（≥3 只站上 MA20 且 MA20 上行）</td><td class='num'>320</td></tr><tr><td>波动率安全（20 日已实现波动<60 日中位且回落）</td><td class='num'>420</td></tr><tr><td>三者同时安全（本版采用）</td><td class='num'>61</td></tr></table>
+<p>定义：期权＝沪深300 期权偏度 z&lt;0.5 且隐含波动 20 日回落；均线＝池内≥3 只站上 MA20 且 MA20 五日内上行；波动率＝20 日已实现波动低于自身 60 日中位且 10 日内回落。三者交集 61 天、14 段、最长连续 22 天。</p>
+
+<h1 class="sec">二、开闸规则</h1>
+<ul>
+<li>闸门只负责关：回撤 −1.6% 减到四成、−1.8% 清零 A 股腿与原油。</li>
+<li><b>开闸必须三者同时安全</b>：触发当日回到四成，连续确认日数满则回满仓。</li>
+<li>年度重置<strong>不再</strong>无条件开闸（已验证：7 次开闸全部落在信号日，判定=True）。</li>
+</ul>
+
+<h1 class="sec">三、回测对照</h1>
+<table><tr><th>方案</th><th>全区间</th><th>最大回撤</th><th>2022</th><th>2025</th><th>2026</th><th>关闸天数</th><th>股票均仓</th></tr><tr><td>净值复位（现行）</td><td class='num'>+67.42%</td><td class='num'>-4.44%</td><td class='num'>+5.81%</td><td class='num'>+11.75%</td><td class='num'>+13.41%</td><td class='num'>426</td><td class='num'>21.3%</td></tr><tr><td>三者同时安全·确认1日</td><td class='num'>+65.41%</td><td class='num'>-4.05%</td><td class='num'>+6.74%</td><td class='num'>+13.16%</td><td class='num'>+11.64%</td><td class='num'>636</td><td class='num'>18.9%</td></tr><tr><td>三者同时安全·确认2日</td><td class='num'>+63.41%</td><td class='num'>-4.04%</td><td class='num'>+7.19%</td><td class='num'>+11.63%</td><td class='num'>+11.99%</td><td class='num'>629</td><td class='num'>18.2%</td></tr><tr><td>三者同时安全·确认3日</td><td class='num'>+60.72%</td><td class='num'>-4.12%</td><td class='num'>+7.03%</td><td class='num'>+9.92%</td><td class='num'>+10.32%</td><td class='num'>556</td><td class='num'>17.4%</td></tr><tr><td>三者同时安全·确认5日</td><td class='num'>+60.16%</td><td class='num'>-4.12%</td><td class='num'>+7.12%</td><td class='num'>+9.74%</td><td class='num'>+10.32%</td><td class='num'>556</td><td class='num'>17.3%</td></tr><tr><td>仅期权解除</td><td class='num'>+55.85%</td><td class='num'>-7.70%</td><td class='num'>+4.55%</td><td class='num'>+5.55%</td><td class='num'>+13.60%</td><td class='num'>382</td><td class='num'>20.6%</td></tr><tr><td>仅均线解除</td><td class='num'>+61.65%</td><td class='num'>-9.25%</td><td class='num'>+5.39%</td><td class='num'>+16.32%</td><td class='num'>+8.94%</td><td class='num'>496</td><td class='num'>22.4%</td></tr><tr><td>仅波动率解除</td><td class='num'>+59.23%</td><td class='num'>-7.08%</td><td class='num'>+5.02%</td><td class='num'>+7.99%</td><td class='num'>+17.27%</td><td class='num'>339</td><td class='num'>22.5%</td></tr></table>
+<p>交集版（确认 1 日）−4.05% 的回撤是这批里最低的，但收益 +65.41% 低于现行 +67.42%。单判据版本全部破 5%：仅期权 −7.70%、仅均线 −9.25%、仅波动率 −7.08%。</p>
+
+<h1 class="sec">四、仓位回补核对</h1>
+<table><tr><th>方案</th><th>2025 / 2026 收益</th><th>关闸天数（2025/2026）</th><th>股票均仓（2025/2026）</th><th>科创50 均仓</th><th>创业板 均仓</th></tr><tr><td>现行（净值复位）</td><td class='num'>+11.75% / +13.41%</td><td class='num'>126 / 105</td><td class='num'>27.8% / 20.1%</td><td class='num'>3.98% / 1.76%</td><td class='num'>3.46% / 3.81%</td></tr><tr><td>三者同时安全（确认 1 日）</td><td class='num'>+13.16% / +11.64%</td><td class='num'>171 / 157</td><td class='num'>23.4% / 18.2%</td><td class='num'>0.33% / 1.17%</td><td class='num'>4.20% / 3.68%</td></tr></table>
+<p>2025 年创业板均仓从 3.46% 升到 4.20%、收益从 +11.75% 升到 +13.16%；但科创50 从 3.98% 掉到 0.33%，2026 年整体仓位也更低。交集并没有把仓位“加回来”，只是换了一种少亏的方式。</p>
+
+<h1 class="sec">五、交集过严导致的长期不开闸</h1>
+<table><tr><th>区段</th><th>交易日</th><th>段内股票均仓</th></tr><tr><td>2024-08-05 ~ 2025-06-06</td><td class='num'>201</td><td class='num'>12.6%</td></tr><tr><td>2022-07-01 ~ 2022-12-09</td><td class='num'>110</td><td class='num'>12.0%</td></tr><tr><td>2026-06-10 ~ 2026-11-05</td><td class='num'>100</td><td class='num'>11.2%</td></tr></table>
+<p>最长一段 201 个交易日（2024-08 至 2025-06）闸门全关，段内股票均仓只有 12.6%；2026-06-10 至 11-05 又连续关了 100 天。这说明“三者同时安全”在 A 股很难满足——偏度安全与均线安全往往不同时出现。</p>
+
+<h1 class="sec">六、结论与可选调整</h1>
+<ol>
+<li>你的规则已经如实实现：只有三者同时安全才开闸，回撤从 −4.44% 降到 −4.05%，代价是收益少 2.0pp、2026 年仓位更低。</li>
+<li>想要“既安全又能加回仓位”，只有两条路：把三者从“同时”放宽为“两两同时”（期权+均线或期权+波动率），或把安全阈值放宽（偏度 z&lt;0.8、波动率低于 70% 分位）。</li>
+<li>若坚持严格同时，就必须接受闸门常年关闭——这是 A 股风险结构的客观结果，不是参数没调好。</li>
+</ol>
+
+<div class="warn">本内容由人工智能基于公开数据回测生成，仅供研究与交流，不构成任何投资建议或收益承诺。样本 2022–2026 单一区间、参数经样本内筛选；创业板偏度为科创50 期权代理，2022 年仅有沪深300/上证50 期权；历史回测不代表未来表现。市场有风险，投资需谨慎。</div>
+<footer>数据：ETF 日线（新浪）、上交所/深交所 ETF 期权日统计与希腊字母、QVIX 序列；区间 2022-01-04 至 2026-11-06。</footer>
+</div></body></html>

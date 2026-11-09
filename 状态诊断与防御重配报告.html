@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>“商品强通胀”是怎么判出来的：诊断与修正</title>
+<style>
+:root{--ink:#12161C;--sub:#5A6472;--line:#E3E7EE;--bg:#F7F8FA;--accent:#1F3A5F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","PingFang SC",system-ui,sans-serif;font-size:14.5px;line-height:1.72}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 26px 60px}
+header{border-bottom:3px solid var(--accent);padding-bottom:16px;margin-bottom:24px}
+h1{font-size:24px;line-height:1.36;margin:0 0 10px}
+.meta{color:var(--sub);font-size:12.5px}
+h2{font-size:18px;margin:34px 0 12px;padding-left:11px;border-left:4px solid var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;background:#fff}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#F2F5F9;font-weight:600;font-size:12.5px;color:#2B3442}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lead{background:#fff;border-left:4px solid var(--accent);padding:14px 18px;margin:16px 0;border-radius:0 8px 8px 0}
+.note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 15px;font-size:13px;color:#7C4A03;margin:12px 0}
+.warn{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 15px;font-size:13px;color:#7F1D1D;margin:12px 0}
+ul,ol{margin:8px 0 8px 20px;padding:0} li{margin:5px 0}
+.small{font-size:12.5px;color:var(--sub)}
+footer{margin-top:38px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:12.5px}
+</style></head><body><div class="wrap">
+
+<header>
+<h1>“商品强通胀 86.8%”是怎么算出来的：链路拆解、错在哪、改完什么结果</h1>
+<div class="meta">诊断日 2026-11-06｜回测区间 2026-01-05 ~ 2026-11-06（203 个交易日）｜32 只 ETF｜5bp 单边成本｜
+月度重设 + 3% 熔断（回撤 3% 减半、1.5% 恢复）｜不构成投资建议</div>
+</header>
+
+<div class="lead">
+<p><strong>先承认错在哪：我那套八态模型根本没用 CPI/PPI。</strong>它的输入只有六个市场变量——沪深300 动量、韩股动量、原油动量、标普波动率、美债 10Y-2Y、股债相关性。
+“商品强通胀”这个名字是我按状态均值贴上去的标签，不是宏观判断。</p>
+<p>当期（11-06）的真实读数：<strong>CPI 0.9%（接近通缩）、PPI 5.0%（工业品涨价）、PMI 50.1、M2 7.2%</strong>。
+这是<strong>成本推动 + 需求偏弱</strong>，不是需求拉动的商品强通胀。你说“现在没有通胀”，在 CPI 口径上完全成立。</p>
+<p>按“低通胀”做防御配置（国债 40–45%、红利 20%、低波 10–15%、黄金 5–10%、原油 5–10%）：<strong>年内 +0.5%、最大回撤 −4.10%</strong>——
+<strong>守住了 5%，但几乎没赚钱</strong>。原因在第六节：原油全年 +86% 是供给冲击，跟 CPI 没关系，砍到 5%–10% 就把收益来源砍掉了。</p>
+</div>
+
+<h2>一、状态判定的完整链路（逐层拆）</h2>
+<table>
+<tr><th style="width:20%">环节</th><th>内容</th></tr>
+<tr><td>输入特征</td><td>eq_mom（沪深300 20 日动量）、em_mom（韩股 20 日动量）、oil_mom（原油 20 日动量）、vol_spx（标普 20 日已实现波动）、slope_us（美债 10Y-2Y）、corr_eq_bond（股债 60 日相关性）——<strong>全部是市场变量，没有一个宏观价格指数</strong></td></tr>
+<tr><td>模型</td><td>8 状态高斯 HMM，504 日滚动窗口，月度 EM 重估，协方差下限 1.5，概率与均匀先验 85:15 收缩</td></tr>
+<tr><td>标签</td><td>把每个状态的均值向量与 8 个“经济学原型”做匹配（匈牙利算法），最近的原型就是名字——“商品强通胀”是这么来的</td></tr>
+<tr><td>当期</td><td>11-06 概率 86.8% 落在“商品强通胀”状态；该状态均值：oil_mom +0.213、eq_mom −0.208、vol_spx 0.131、corr −0.143</td></tr>
+</table>
+<h3>1.1 当期特征与该状态均值的偏离</h3>
+<table>
+<tr><th>特征</th><th class="num">当期</th><th class="num">“商品强通胀”均值</th><th class="num">标准化偏离</th></tr>
+<tr><td>原油 20 日动量</td><td class="num">-0.028</td><td class="num">+0.213</td><td class="num">-0.89σ</td></tr>
+<tr><td>沪深300 动量</td><td class="num">-0.369</td><td class="num">-0.208</td><td class="num">-0.59σ</td></tr>
+<tr><td>标普 20 日波动</td><td class="num">0.201</td><td class="num">0.131</td><td class="num"><strong>+2.50σ</strong></td></tr>
+<tr><td>股债相关性</td><td class="num">-0.165</td><td class="num">-0.143</td><td class="num">-0.31σ</td></tr>
+</table>
+<p><strong>油价动量已经是负的、波动率比该状态均值高 2.5 个标准差</strong>——当期其实更像“高波动 + 弱增长”，
+但 HMM 因为转移粘性（前一天也是这个状态）继续给了 86.8%。八个状态里没有一个真像它：最近的距离也有 3.06σ。
+这是典型的“被迫贴标签”。</p>
+
+<h2>二、宏观真实读数与月度标签重建</h2>
+<table>
+<tr><th>月份</th><th>标签</th><th class="num">CPI(%)</th><th class="num">PPI(%)</th><th class="num">PMI</th><th class="num">M2(%)</th></tr>
+<tr><td>2026-01-30</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>—</td><td class='num'>—</td><td class='num'>—</td><td class='num'>—</td></tr><tr><td>2026-02-27</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>—</td><td class='num'>—</td><td class='num'>49.3</td><td class='num'>—</td></tr><tr><td>2026-03-31</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>1.3</td><td class='num'>—</td><td class='num'>50.4</td><td class='num'>—</td></tr><tr><td>2026-04-30</td><td>低通胀·增长偏弱·风险正常</td><td class='num'>1.0</td><td class='num'>-0.6</td><td class='num'>50.3</td><td class='num'>—</td></tr><tr><td>2026-05-29</td><td>低通胀·增长偏弱·风险正常</td><td class='num'>1.0</td><td class='num'>-0.6</td><td class='num'>50.3</td><td class='num'>—</td></tr><tr><td>2026-06-30</td><td>成本推动·增长偏弱·风险偏高</td><td class='num'>1.3</td><td class='num'>3.9</td><td class='num'>50.3</td><td class='num'>8.6</td></tr><tr><td>2026-07-31</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>1.0</td><td class='num'>4.1</td><td class='num'>49.2</td><td class='num'>8.0</td></tr><tr><td>2026-08-31</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.5</td><td class='num'>3.5</td><td class='num'>49.8</td><td class='num'>7.7</td></tr><tr><td>2026-09-30</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.8</td><td class='num'>3.8</td><td class='num'>50.1</td><td class='num'>7.5</td></tr><tr><td>2026-10-30</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.8</td><td class='num'>3.8</td><td class='num'>50.1</td><td class='num'>7.5</td></tr><tr><td>2026-11-06</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.9</td><td class='num'>5.0</td><td class='num'>50.1</td><td class='num'>7.2</td></tr>
+</table>
+<p>重建规则：CPI &lt;1.0 且 PPI &lt;2.0 → 低通胀；CPI &lt;1.5 且 PPI ≥2.0 → <strong>成本推动</strong>；其余 → 需求拉动通胀。
+增长用 PMI ≥50.5 且 M2 ≥8.0 判强，否则偏弱；风险用 20 日股指基差 ≤ −1.5% 或 QVIX 分位 ≥85% 判偏高。</p>
+
+<h2>三、基差与波动率：哪些能真算</h2>
+<table>
+<tr><th>指标</th><th class="num">最新</th><th class="num">年内均值</th><th class="num">年内最负</th></tr>
+<tr><td>IF（沪深300）</td><td class='num'>-0.88%</td><td class='num'>-1.06%</td><td class='num'>-2.77%</td></tr><tr><td>IH（上证50）</td><td class='num'>-1.09%</td><td class='num'>-0.77%</td><td class='num'>-2.30%</td></tr><tr><td>IC（中证500）</td><td class='num'>-0.78%</td><td class='num'>-1.26%</td><td class='num'>-3.50%</td></tr><tr><td>IM（中证1000）</td><td class='num'>-0.68%</td><td class='num'>-1.45%</td><td class='num'>-4.04%</td></tr>
+</table>
+<ul class="small">
+<li><strong>可以真算的</strong>：股指期货基差（IF/IH/IC/IM 与对应指数，日频）；300ETF 与 50ETF 期权隐含波动率（QVIX，最新 300ETF 20.5、50ETF 16.0）。</li>
+<li><strong>算不了的</strong>：国债期货基差/IRR——需要 CTD 券与转换因子，本地没有券库；只能用 T 期货价格与 10Y 收益率做方向代理，不能当基差用。</li>
+<li><strong>没有的</strong>：逐合约期权链与偏度、信用利差。</li>
+</ul>
+<p class="small">年内四个股指期货全部贴水（均值 −0.8% 至 −1.5%，最负 −4.04%），说明对冲需求持续偏高——这是“做空波动/买保护”本身的成本来源。</p>
+
+<h2>四、按“无通胀”重配的规则</h2>
+<table>
+<tr><th>状态</th><th>目标权重</th></tr>
+<tr><td>成本推动·增长偏弱（当前）</td><td>十年国债 40%、公司债 15%、红利 20%、低波 10%、黄金 5%、原油 10%</td></tr>
+<tr><td>需求拉动通胀</td><td>十年国债 30%、红利 15%、低波 10%、纳指 15%、黄金 10%、原油 20%</td></tr>
+<tr><td>低通胀 / 数据不足</td><td>十年国债 45%、红利 20%、低波 15%、纳指 10%、黄金 10%</td></tr>
+<tr><td>风险偏高（基差深贴水或高波动分位）</td><td>十年国债 50%、活跃国债 25%、黄金 15%、红利 10%</td></tr>
+</table>
+<h3>4.1 逐月标签与实际配置</h3>
+<table>
+<tr><th>月份</th><th>标签</th><th class="num">CPI</th><th class="num">PPI</th><th class="num">20日基差</th><th class="num">QVIX分位</th><th>权重</th></tr>
+<tr><td>2026-01</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>—</td><td class='num'>—</td><td class='num'>-0.65%</td><td class='num'>0%</td><td>十年国债ETF 45%、红利ETF 20%、低波ETF 15%、纳指ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-02</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>—</td><td class='num'>—</td><td class='num'>-0.07%</td><td class='num'>50%</td><td>十年国债ETF 45%、红利ETF 20%、低波ETF 15%、纳指ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-03</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>—</td><td class='num'>—</td><td class='num'>-0.05%</td><td class='num'>0%</td><td>十年国债ETF 45%、红利ETF 20%、低波ETF 15%、纳指ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-04</td><td>数据不足·增长偏弱·风险正常</td><td class='num'>1.3</td><td class='num'>—</td><td class='num'>-1.29%</td><td class='num'>39%</td><td>十年国债ETF 45%、红利ETF 20%、低波ETF 15%、纳指ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-05</td><td>低通胀·增长偏弱·风险正常</td><td class='num'>1.0</td><td class='num'>-0.6</td><td class='num'>-1.35%</td><td class='num'>16%</td><td>十年国债ETF 45%、红利ETF 20%、低波ETF 15%、纳指ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-06</td><td>低通胀·增长偏弱·风险正常</td><td class='num'>1.0</td><td class='num'>-0.6</td><td class='num'>-0.87%</td><td class='num'>78%</td><td>十年国债ETF 45%、红利ETF 20%、低波ETF 15%、纳指ETF 10%、黄金ETF 10%</td></tr><tr><td>2026-07</td><td>成本推动·增长偏弱·风险偏高</td><td class='num'>1.3</td><td class='num'>3.9</td><td class='num'>-1.72%</td><td class='num'>91%</td><td>十年国债ETF 50%、黄金ETF 15%、红利ETF 10%、活跃国债ETF 25%</td></tr><tr><td>2026-08</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>1.0</td><td class='num'>4.1</td><td class='num'>-1.45%</td><td class='num'>83%</td><td>十年国债ETF 40%、公司债ETF 15%、红利ETF 20%、低波ETF 10%、黄金ETF 5%、原油ETF 10%</td></tr><tr><td>2026-09</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.5</td><td class='num'>3.5</td><td class='num'>-0.83%</td><td class='num'>32%</td><td>十年国债ETF 40%、公司债ETF 15%、红利ETF 20%、低波ETF 10%、黄金ETF 5%、原油ETF 10%</td></tr><tr><td>2026-10</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.8</td><td class='num'>3.8</td><td class='num'>-1.20%</td><td class='num'>5%</td><td>十年国债ETF 40%、公司债ETF 15%、红利ETF 20%、低波ETF 10%、黄金ETF 5%、原油ETF 10%</td></tr><tr><td>2026-11</td><td>成本推动·增长偏弱·风险正常</td><td class='num'>0.8</td><td class='num'>3.8</td><td class='num'>-1.49%</td><td class='num'>69%</td><td>十年国债ETF 40%、公司债ETF 15%、红利ETF 20%、低波ETF 10%、黄金ETF 5%、原油ETF 10%</td></tr>
+</table>
+
+<h2>五、回测结果对照</h2>
+<table>
+<tr><th>方案</th><th class="num">年内收益</th><th class="num">最大回撤</th><th class="num">年化波动</th></tr>
+<tr><td>宏观防御配置</td><td class='num'>+0.5%</td><td class='num'>-4.10%</td><td class='num'>5.9%</td></tr><tr><td>防御+卖波动(低波时)</td><td class='num'>-1.4%</td><td class='num'>-5.08%</td><td class='num'>6.1%</td></tr><tr><td>防御+买保护(高波时)</td><td class='num'>+0.5%</td><td class='num'>-4.10%</td><td class='num'>5.9%</td></tr><tr><td>旧动态池×波动预算</td><td class='num'>-1.6%</td><td class='num'>-3.69%</td><td class='num'>2.5%</td></tr><tr><td>四项全改</td><td class='num'>-3.5%</td><td class='num'>-7.82%</td><td class='num'>6.1%</td></tr><tr><td>固定配比 55/15/15/10/5</td><td class='num'>+17.5%</td><td class='num'>-4.06%</td><td class='num'>9.7%</td></tr>
+</table>
+<p><strong>防御重配 +0.5%、回撤 −4.10%（守住 5%）；叠加卖波动变成 −1.4%、回撤 −5.08%（破线）；买保护没有影响（回撤不是期权能覆盖的）。</strong>
+与固定配比 +17.5%/−4.06% 相比，差在收益上——防御配置把商品压到 5%–10%，正好把 2026 年唯一的大赢家压掉了。</p>
+
+<h2>六、为什么“不买通胀资产”在 2026 年会亏</h2>
+<ul>
+<li><strong>原油 +86.8% 是供给冲击，不是 CPI 通胀。</strong>它由中东冲突与 OPEC 减产驱动，CPI 只有 0.9% 也照样涨。用 CPI 判断“该不该买商品”，会系统性错过这类行情。</li>
+<li><strong>防御组合本身收益太薄。</strong>十年国债全年 +1.7%、红利 +6.0%、低波 +5.5%、黄金 −13.1%；加权后静态只有 2% 左右，扣掉月度切换与成本就到了 −1.9%。</li>
+<li><strong>−4.10% 的回撤主要来自 6 月。</strong>当时处于“低通胀”，持仓是国债 45% + 红利 20% + 低波 15% + 纳指 10% + 黄金 10%，当月黄金与红利、低波同步下跌，单月 −2.4%；7 月切到“风险偏高”满仓债券后回撤才收窄。</li>
+<li><strong>做空波动是负贡献。</strong>低波时点（QVIX 分位 &lt;30%）在 2026 年只有零星几天，卖波动让收益从 +0.5% 掉到 −1.4%、回撤从 4.10% 升到 5.08%（破线）；买保护没有改善——回撤来自资产同跌，不是期权能对冲的尾部。</li>
+</ul>
+<div class="warn"><strong>所以你的判断一半是对的：</strong>拿“通胀”当理由买商品确实错（CPI 不支持）；
+<strong>但结论“所以该买国债、红利、做空波动”在 2026 年只换来 +0.5%，卖波动还会把回撤打回 5% 以上</strong>——因为这一年真正赚钱的资产就是原油，而它涨的理由是供给，不是通胀。
+真正的修正是：<strong>把“通胀”拆成 CPI（需求）与 PPI/油价（供给），两者分别决定要不要买商品</strong>，而不是用一个“通胀状态”一锅端。</div>
+
+<h2>七、正确的做法（下一步该改的地方）</h2>
+<ol>
+<li><strong>状态标签拆维度</strong>：需求通胀（CPI）、供给冲击（PPI/油价）、增长（PMI/M1）、流动性（基差/波动）分开打分，不再硬贴一个“商品强通胀”。</li>
+<li><strong>商品暴露跟供给冲击走，不跟 CPI 走</strong>：PPI 上行 + 油价趋势向上才配商品；CPI 低但 PPI 高，配的是“上游资源”而不是“消费复苏”。</li>
+<li><strong>防御腿用确定收益的资产</strong>：国债、红利、低波是“低波动低收益”，不能指望它们完成 5% 回撤下的高收益目标——它们只负责不亏。</li>
+<li><strong>做空波动只在极端高估时做</strong>：2026 年 QVIX 分位低的时间太短，卖波动是负期望；买保护只在仓位无法快速下调时才值得。</li>
+</ol>
+
+<h2>八、口径与局限</h2>
+<ul class="small">
+<li>区间 2026-01-05~2026-11-06，203 个交易日；32 只 ETF，不含个股；5bp 单边成本；月度重设 + 3% 熔断。</li>
+<li>宏观数据按发布日近似（CPI/PPI 次月 9 日、PMI 月末、M2 次月 12 日），避免未来函数；1–3 月因 2025 年数据不在本地，标为“数据不足”。</li>
+<li>八态 HMM 的标签是原型匹配的结果，不是宏观定义；本次已把它与真实宏观对照，暴露出名实不符。</li>
+<li>基差只用股指期货；国债期货基差、期权链偏度、信用利差不可得，未入模。</li>
+</ul>
+
+<footer>
+<p><strong>免责声明：</strong>本报告为历史数据回测与方法诊断，收益与回撤均为模型输出，<strong>不构成投资建议</strong>，不构成对未来收益的承诺。样本仅 203 个交易日，结论只对 2026 年成立。ETF 存在溢价与流动性风险，期权与期货含杠杆，投资有风险。</p>
+<p>口径：2026-01-05 ~ 2026-11-06（203 个交易日）｜32 只 ETF｜5bp 单边成本｜生成于 2026-11-08</p>
+</footer>
+</div></body></html>

@@ -1,0 +1,72 @@
+{
+  "asof": "2026-11-05",
+  "version": "v1.1-20261109",
+  "equity_total": 7.17,
+  "bond_total": 92.83,
+  "breadth": 0.0,
+  "rows": [
+    {
+      "key": "hs300",
+      "name": "沪深300ETF(510300)",
+      "weight": 0.0,
+      "target": 0.0,
+      "diff": 0.0
+    },
+    {
+      "key": "zz500",
+      "name": "中证500ETF(510500)",
+      "weight": 0.0,
+      "target": 0.0,
+      "diff": 0.0
+    },
+    {
+      "key": "cyb",
+      "name": "创业板ETF(159915)",
+      "weight": 0.0,
+      "target": 0.0,
+      "diff": 0.0
+    },
+    {
+      "key": "kc50",
+      "name": "科创50ETF(588000)",
+      "weight": 0.0,
+      "target": 0.0,
+      "diff": 0.0
+    },
+    {
+      "key": "nasdaq",
+      "name": "纳指ETF(513100)",
+      "weight": 7.17,
+      "target": 7.5,
+      "diff": 0.33
+    },
+    {
+      "key": "oil",
+      "name": "原油ETF(501018)",
+      "weight": 0.0,
+      "target": 0.0,
+      "diff": 0.0
+    },
+    {
+      "key": "cn_bond",
+      "name": "十年国债ETF(511260)",
+      "weight": 92.83,
+      "target": 92.5,
+      "diff": -0.33
+    },
+    {
+      "key": "us_bond",
+      "name": "美元债LOF(501300)",
+      "weight": 0.0,
+      "target": 0.0,
+      "diff": 0.0
+    },
+    {
+      "key": "cash",
+      "name": "现金",
+      "weight": 0.0,
+      "target": 0,
+      "diff": null
+    }
+  ]
+}

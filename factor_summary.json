@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-06",
+  "n_factors": 45,
+  "n_computable": 36,
+  "n_unavailable": 9,
+  "tiers": {
+    "真实（价量衍生）": 26,
+    "真实（价量回归）": 7,
+    "代理（成交额/成交量代理规模与流动性）": 3
+  },
+  "unavailable": {
+    "SIZE_MKT_CAP": "ETF 无市值口径，规模只能用成交额代理",
+    "BETA_FUNDAMENTAL": "无成分股财务报表，无法做基本面 beta",
+    "BOOK_TO_PRICE": "无成分股 PB",
+    "EARNINGS_YIELD": "无成分股 PE",
+    "ROE": "无成分股 ROE",
+    "LEVERAGE": "无成分股资产负债率",
+    "DIVIDEND_YIELD": "ETF 分红数据不全，无法稳定计算",
+    "ROLL_YIELD": "商品 ETF 无期货曲线，无法计算展期收益",
+    "CREDIT_SPREAD_SENS": "无信用利差序列，无法回归信用敏感度"
+  },
+  "assets": 32
+}

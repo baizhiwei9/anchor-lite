@@ -1,0 +1,7 @@
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+akshare>=1.12.0
+# 可选：仅 xgb_backtest.py 需要
+xgboost>=2.0.0

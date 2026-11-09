@@ -1,0 +1,51 @@
+{
+  "n_days": 252,
+  "switches_filtered": 6,
+  "switches_smoothed": 4,
+  "switch_dates_filtered": [
+    "2025-05-16",
+    "2025-06-27",
+    "2025-07-01",
+    "2025-08-05",
+    "2025-09-09",
+    "2025-12-02"
+  ],
+  "switch_dates_smoothed": [
+    "2025-05-08",
+    "2025-11-18",
+    "2025-12-12",
+    "2026-03-02"
+  ],
+  "last_state": "通胀交易",
+  "last_switch_filtered": "2025-12-02",
+  "last_switch_smoothed": "2025-12-12",
+  "lag_days_last": -8,
+  "mean_abs_diff": 0.22038850993392406,
+  "max_abs_diff": 0.849999999998798,
+  "ic": {
+    "filtered_inf_vs_fwd_oil": 0.5174322596464354,
+    "smoothed_inf_vs_fwd_oil": 0.6101116930748504,
+    "filtered_low_vs_fwd_eq": -0.13062321049631437,
+    "smoothed_low_vs_fwd_eq": 0.3817078309363014,
+    "filtered_cri_vs_fwd_eq": -0.06608436216559165,
+    "smoothed_cri_vs_fwd_eq": -0.09056808191442899
+  },
+  "hit_inf_oil": [
+    0.7478260869565218,
+    115
+  ],
+  "hit_inf_oil_sm": [
+    1.0,
+    46
+  ],
+  "hit_cri_eq": [
+    0.425,
+    40
+  ],
+  "hit_cri_eq_sm": [
+    0.42424242424242425,
+    33
+  ],
+  "p_max_share": 0.8412698412698413,
+  "sm_max_share": 0.9166666666666666
+}
