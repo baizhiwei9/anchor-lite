@@ -1,0 +1,11 @@
+# Trade Agents 周度分析 · 运行依赖（合并 tech 技术分析引擎 + data_hub 数据层）
+# Python >= 3.9
+
+pandas>=1.5
+numpy>=1.23
+matplotlib>=3.6
+mplfinance>=0.12.9b7
+requests>=2.28
+akshare>=1.18
+tushare>=1.4.6
+Pillow>=9.0
