@@ -215,6 +215,22 @@ def build_report(hits_stage1, stocks, research, stock_cov=None):
     A("  ⚠️ 技术结构分析，不构成投资建议。")
     return "\n".join(L)
 
+def colorize_report(md):
+    """看多绿 / 看空红: 🌙行→绿, ⭐行→红, 含防守/看空→红, 含看多/进攻→绿"""
+    out = []
+    for line in md.split("\n"):
+        if "⭐" in line and "🌙" not in line:
+            out.append(f"<font color='red'>{line}</font>")
+        elif "🌙" in line:
+            out.append(f"<font color='green'>{line}</font>")
+        elif ("防守" in line or "看空" in line) and "不构成" not in line:
+            out.append(f"<font color='red'>{line}</font>")
+        elif "看多" in line or "进攻" in line:
+            out.append(f"<font color='green'>{line}</font>")
+        else:
+            out.append(line)
+    return "\n".join(out)
+
 def push_with_charts(report, stocks):
     """最终推荐个股出图 + 图文卡片推飞书"""
     os.environ.setdefault("FEISHU_APP_ID", os.environ.get("FEISHU_APP_ID", ""))
@@ -236,7 +252,8 @@ def push_with_charts(report, stocks):
                 imgs.append(p)
         except Exception as e:
             print(f"  出图失败 {s['name']}: {str(e)[:60]}")
-    # 组装卡片 blocks
+    # 组装卡片 blocks（先给方向标色: 看多绿 / 看空红）
+    report = colorize_report(report)
     blocks = []
     for sec in report.split("\n\n"):
         sec = sec.strip()
