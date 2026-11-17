@@ -259,11 +259,11 @@ def push_with_charts(report, stocks):
         sec = sec.strip()
         if sec:
             blocks.append({"type": "md", "text": sec})
+    blocks.append({"type": "md", "text": "📎 报告来自 hermes.DeepSeek"})
     title = "📊 Trade Agents 周度分析"
-    sign = "📎 报告来自 hermes.DeepSeek"
     try:
         ok = FC.send_card(title, blocks, imgs=imgs, chat=FEISHU_CHAT,
-                          template="blue", sign=sign)
+                          template="blue", sign=None)
         print(f"飞书图文推送: {'成功' if ok else '失败'}，配图 {len(imgs)} 张")
         return ok
     except Exception as e:
