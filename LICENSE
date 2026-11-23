@@ -1,0 +1,49 @@
+BSD 3-Clause License with Commons Clause
+
+Copyright (c) 2026 baizhiwei9
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+COMMONS CLAUSE
+
+The license granted above is subject to the following additional condition:
+
+"Sell" means to practice any or all of the rights granted under this license
+to provide to third parties, for a fee or other consideration (including
+without limitation fees for hosting or consulting/support services related to
+the Software), a product or service whose value derives, entirely or
+substantially, from the functionality of the Software.
+
+The license granted above excludes the right to Sell. You may not Sell the
+Software or any derivative work without a separate commercial license.
+
+Any license notice or attribution required by the license must also include
+this Commons Clause license condition notice.
+
+商业使用（包括但不限于把本软件或其衍生作品作为收费产品/服务的一部分提供给第三方，
+含代客户部署、托管运维、咨询支持等收费服务）
+需另行取得商业许可，条款见 LICENSE-COMMERCIAL.md。
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
